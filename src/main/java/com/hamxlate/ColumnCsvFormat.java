@@ -2,6 +2,7 @@ package com.hamxlate;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +34,15 @@ final class ColumnCsvFormat implements CsvFormat {
                 throw new IllegalArgumentException("Expected CSV headers: " + String.join(",", columns));
             }
             List<Channel> channels = new ArrayList<>();
-            for (CSVRecord record : parser.getRecords()) {
+            for (CSVRecord record : parser) {
                 if (!record.isConsistent()) {
                     throw new IllegalArgumentException("CSV row has the wrong number of columns");
                 }
                 channels.add(new Channel(record.get("Name"), record.get("Frequency")));
             }
             return channels;
+        } catch (UncheckedIOException ex) {
+            throw ex.getCause();
         }
     }
 
